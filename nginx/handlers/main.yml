@@ -1,0 +1,7 @@
+- name: Restart Nginx And PHP Service
+  systemd:
+    name: "{{item}}"
+    state: restarted
+  loop:
+    - nginx
+    - php-fpm

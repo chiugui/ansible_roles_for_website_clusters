@@ -1,0 +1,9 @@
+- hosts: redis
+  roles:
+    - role: redis
+- hosts: webservers
+  roles:
+    - role: nginx
+- hosts: lbs
+  roles:
+    - role: lbs

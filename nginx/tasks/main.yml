@@ -1,0 +1,42 @@
+- name: Install Nginx And PHP Service
+  yum:
+    name: "{{packages}}"
+    state: present
+    
+- name: groupadd and useradd
+  include: ../../Process_env.yml
+    
+- name: config nginx.conf and osker.com.conf files,php.ini and php-fpm.d/www.conf 
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    backup: yes
+  loop:
+    - { src: nginx.conf.j2, dest: /etc/nginx/nginx.conf }
+    - { src: osker.com.conf.j2, dest: /etc/nginx/conf.d/osker.com.conf }
+    - { src: php.ini.j2, dest: /etc/php.ini }
+    - { src: php_www.conf.j2, dest: /etc/php-fpm.d/www.conf }
+  notify: Restart Nginx And PHP Service
+
+- name: check nginx config files
+  shell: nginx -t
+  register: ck_ngx
+  changed_when:
+    - false                              ###nginx语法检查，没有对被控端进行文件改变，将返回状态设置为ok。
+    - ck_ngx.stdout.find('successful')   ###检查ck_ngx.stdout返回的字符中有没有successful字段，有状态为ok，没有状态为failed，停止剧本。（此段功能主要为检查配置文件是否有语法错误，若有不会继续执行重启nginx服务，以免在用的nginx重启后服务不能正常启动）
+- name: check php-fpm config files
+  shell: php-fpm -t
+  register: ck_php
+  changed_when:
+    - false
+    - ck_php.stdout.find('successful')
+    
+
+- name: Started Nginx and PHP Service
+  systemd:
+    name: "{{ item }}"
+    state: started
+    enabled: yes
+  loop:
+    - nginx
+    - php-fpm

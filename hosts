@@ -1,0 +1,11 @@
+[lbs]
+172.16.1.5 state=MASTER priority=150
+172.16.1.6 state=BACKUP priority=120
+
+[webservers]
+172.16.1.7
+172.16.1.8
+
+[redis]
+172.16.1.71
+

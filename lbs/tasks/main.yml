@@ -1,0 +1,34 @@
+- name: install nginx service
+  yum:
+    name: "{{item}}"
+    state: present
+  loop:
+    - nginx
+    - keepalived
+
+- name: config nginx.conf and proxy_osker.com.conf file
+  template:
+    src: "{{item.src}}"
+    dest: "{{item.dest}}"
+  loop:
+    - {src: proxy_osker.com.conf.j2, dest: /etc/nginx/conf.d/proxy_osker.com.conf}
+  notify: Restart Nginx Service
+
+  
+- name: template keepalived.conf file
+  template:
+    src: keepalived_tmp.conf.j2
+    dest: /etc/keepalived/keepalived.conf
+  notify: Restart Keepalived Service
+
+  
+- name: Started Nginx Service
+  systemd:
+    name: nginx
+    state: started
+    enabled: yes
+- name: Started Keepalived Service
+  systemd:
+    name: keepalived
+    state: started
+    enabled: yes

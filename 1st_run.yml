@@ -1,0 +1,12 @@
+ - hosts: webservers
+   tasks:
+     - name: create web_dir
+       file:
+         path: /code
+         state: directory
+         owner: www
+         group: www
+         mode: '0755'
+         recurse: yes
+     - name: touch index.php
+       shell: echo 'test' >/code/index.php

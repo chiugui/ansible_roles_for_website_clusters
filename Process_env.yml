@@ -1,0 +1,11 @@
+- name: groupadd for nginx and php service
+  group:
+    name: "{{Process_Group}}"
+    gid: "{{Gid}}"
+- name: useradd for nginx and php service
+  user:
+    name: "{{Process_User}}"
+    uid: "{{Uid}}"
+    group: "{{Process_Group}}"
+    shell: /sbin/nologin
+    create_home: no

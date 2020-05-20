@@ -1,0 +1,20 @@
+packages:
+  - nginx
+  - php71w
+  - php71w-cli
+  - php71w-common    
+  - php71w-devel
+  - php71w-embedded
+  - php71w-gd
+  - php71w-mcrypt
+  - php71w-mbstring
+  - php71w-pdo
+  - php71w-xml
+  - php71w-fpm
+  - php71w-mysqlnd
+  - php71w-opcache
+  - php71w-pecl-memcached
+  - php71w-pecl-redis
+  - php71w-pecl-mongodb
+Web_Site: osker.com
+Web_Root_Dir: /code
