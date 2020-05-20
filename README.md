@@ -23,10 +23,11 @@ inventory = ./hosts
 
 gathering = smart
 fact_caching_timeout = 86400
-fact_caching = redis
+fact_caching = rledis
 fact_caching_connection = 172.16.1.71:6379
 
-分发公钥到各个主机
+分发公钥到被控主机
+略
 
 main roles
 
@@ -351,6 +352,47 @@ vim 1st_run.yml
 	   shell: echo 'test' >/code/index.php
 	   
  
+目录结构：
+[root@m01 ~/ansible_roles_for_website_clusters-master]# tree
+.
+├── 1st_run.yml
+├── ansible.cfg
+├── group_vars
+│   ├── all
+│   ├── lbs
+│   └── webservers
+├── hosts
+├── lbs
+│   ├── handlers
+│   │   └── main.yml
+│   ├── tasks
+│   │   └── main.yml
+│   └── templates
+│       ├── keepalived_tmp.conf.j2
+│       ├── nginx.conf.j2
+│       └── proxy_osker.com.conf.j2
+├── main.yml
+├── nginx
+│   ├── handlers
+│   │   └── main.yml
+│   ├── tasks
+│   │   └── main.yml
+│   └── templates
+│       ├── nginx.conf.j2
+│       ├── osker.com.conf.j2
+│       ├── php.ini.j2
+│       └── php_www.conf.j2
+├── Process_env.yml
+├── README.md
+└── redis
+    ├── handlers
+    │   └── main.yml
+    ├── tasks
+    │   └── main.yml
+    └── templates
+        └── redis.conf.j2
+
+
 
 运行测试：
 1.先运行ansible-playbook 1st_run.yml 创建一个测试页面
