@@ -1,5 +1,7 @@
  - hosts: webservers
    tasks:
+     - name: create group and user www
+       include: ./Process_env.yml
      - name: create web_dir
        file:
          path: /code
