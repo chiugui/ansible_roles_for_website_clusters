@@ -16,6 +16,8 @@ vim hosts
 172.16.1.8 
 [redis]
 172.16.1.71
+#基于账户和密码的方式控制主机
+#172.16.1.31 ansible_ssh_port=22 ansible_ssh_user=root ansible_ssh_pass='123456'
 
 vim ansible.cfg
 [defaults]
@@ -25,6 +27,10 @@ gathering = smart
 fact_caching_timeout = 86400
 fact_caching = rledis
 fact_caching_connection = 172.16.1.71:6379
+
+# uncomment this to disable SSH key host checking
+#关闭首次连接被控主机需要验证yes/no的问题
+host_key_checking = False
 
 分发公钥到被控主机
 略
