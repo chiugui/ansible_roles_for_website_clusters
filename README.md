@@ -337,6 +337,8 @@ vrrp_instance VI_1 {
 vim 1st_run.yml
  - hosts: webservers
    tasks:
+     - name: create group and user www
+       include: ./Process_env.yml
      - name: create web_dir
 	   file:
          path: /code
