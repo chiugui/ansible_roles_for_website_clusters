@@ -39,7 +39,7 @@ inventory = ./hosts
 #启用facts变量缓存到redis中
 gathering = smart
 fact_caching_timeout = 86400
-fact_caching = rledis
+fact_caching = redis
 fact_caching_connection = 172.16.1.71:6379
 
 #关闭首次连接被控主机需要验证yes/no的问题
