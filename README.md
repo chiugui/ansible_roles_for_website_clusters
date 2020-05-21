@@ -436,5 +436,5 @@ vim 1st_run.yml
 
 ## 3.运行测试
 
-1.先运行ansible-playbook 1st_run.yml 创建一个测试页面
-2.再运行ansible-playbook main.yml 
+a.先运行ansible-playbook 1st_run.yml 创建一个测试页面
+b.再运行ansible-playbook main.yml 
