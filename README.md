@@ -103,21 +103,16 @@ host_key_checking = False
 ### 2.1 main roles编写
 
 ```
-vim 1st_run.yml
- - hosts: webservers
-   tasks:
-     - name: create group and user www
-       include: ./Process_env.yml
-     - name: create web_dir
-	   file:
-         path: /code
-         state: directory
-         owner: www
-         group: www
-         mode: '0755'
-         recurse: yes
-     - name: touch index.php
-	   shell: echo 'test' >/code/index.php
+vim main.yml
+- hosts: redis
+  roles:
+    - role: redis
+- hosts: webservers
+  roles:
+    - role: nginx
+- hosts: lbs
+  roles:
+    - role: lbs
 ```
 
 
