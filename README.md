@@ -1,13 +1,22 @@
-```
-ansible_roles搭建web集群架构
+# ansible_roles搭建web集群架构
 
-环境准备：
+
+
+## 1.环境准备
+
+### 1.1安装ansible以及依赖
+
+```
 yum install -y ansible
 yum install -y python-pip
 pip install redis
+```
 
+### 1.2添加被控主机及主机组
 
-vim hosts
+```
+[root@m01 ~]# cd /ansible
+[root@m01 ~/ansible]# vim hosts
 [lbs]
 172.16.1.5 state=MASTER priority=150
 172.16.1.6 state=BACKUP priority=120
@@ -18,41 +27,104 @@ vim hosts
 172.16.1.71
 #基于账户和密码的方式控制主机
 #172.16.1.31 ansible_ssh_port=22 ansible_ssh_user=root ansible_ssh_pass='123456'
+```
 
-vim ansible.cfg
+### 1.3创建ansible配置文件
+
+```
+[root@m01 ~/ansible]# vim ansible.cfg
 [defaults]
 inventory = ./hosts
 
+#启用facts变量缓存到redis中
 gathering = smart
 fact_caching_timeout = 86400
 fact_caching = rledis
 fact_caching_connection = 172.16.1.71:6379
 
-# uncomment this to disable SSH key host checking
 #关闭首次连接被控主机需要验证yes/no的问题
+# uncomment this to disable SSH key host checking
 host_key_checking = False
+```
 
-分发公钥到被控主机
-略
-
-main roles
-
-vim main.yml
-- hosts: redis
-  roles:
-    - role: redis
-- hosts: webservers
-  roles:
-    - role: nginx
-- hosts: lbs
-  roles:
-    - role: lbs
+### 1.4分发公钥到被控主机
 
 
 
 
 
+## 2.roles编写
 
+编写完成后的目录结构：
+
+```
+[root@m01 ~/ansible]# tree
+.
+├── 1st_run.yml
+├── ansible.cfg
+├── group_vars
+│   ├── all
+│   ├── lbs
+│   └── webservers
+├── hosts
+├── lbs
+│   ├── handlers
+│   │   └── main.yml
+│   ├── tasks
+│   │   └── main.yml
+│   └── templates
+│       ├── keepalived_tmp.conf.j2
+│       ├── nginx.conf.j2
+│       └── proxy_osker.com.conf.j2
+├── main.yml
+├── nginx
+│   ├── handlers
+│   │   └── main.yml
+│   ├── tasks
+│   │   └── main.yml
+│   └── templates
+│       ├── nginx.conf.j2
+│       ├── osker.com.conf.j2
+│       ├── php.ini.j2
+│       └── php_www.conf.j2
+├── Process_env.yml
+├── README.md
+└── redis
+    ├── handlers
+    │   └── main.yml
+    ├── tasks
+    │   └── main.yml
+    └── templates
+        └── redis.conf.j2
+```
+
+
+
+### 2.1 main roles编写
+
+```
+vim 1st_run.yml
+ - hosts: webservers
+   tasks:
+     - name: create group and user www
+       include: ./Process_env.yml
+     - name: create web_dir
+	   file:
+         path: /code
+         state: directory
+         owner: www
+         group: www
+         mode: '0755'
+         recurse: yes
+     - name: touch index.php
+	   shell: echo 'test' >/code/index.php
+```
+
+
+
+### 2.2 redis roles编写
+
+```
 redis-role
 
 vim redis/tasks/main.yml
@@ -81,13 +153,13 @@ vim redis/handlers/main.yml
     
 vim redis/templates/redis.conf.j2
 bind 127.0.0.1 {{ansible_eth1.ipv4.address}}
+```
 
 
 
+### 2.3 nginx_php-roles编写
 
-
-nginx_php-role
-
+```
 vim nginx/tasks/main.yml
 - name: Install Nginx And PHP Service
   yum:
@@ -229,13 +301,13 @@ group = {{Process_Group}}
 
 ;php_value[session.save_handler] = files  注释本行
 ;php_value[session.save_path]    = /var/lib/php/session 注释本行
+```
 
 
 
+### 2.4 lbs roles编写
 
-
-
-
+```
 lbs
 
 vim lbs/tasks/main.yml
@@ -336,11 +408,13 @@ vrrp_instance VI_1 {
         10.0.0.4
     }
  } 
- 
- 
+```
 
 
-###生成测试页面
+
+### 2.5 生成测试页面
+
+```
 vim 1st_run.yml
  - hosts: webservers
    tasks:
@@ -356,52 +430,11 @@ vim 1st_run.yml
          recurse: yes
      - name: touch index.php
 	   shell: echo 'test' >/code/index.php
-	   
- 
-目录结构：
-[root@m01 ~/ansible_roles_for_website_clusters-master]# tree
-.
-├── 1st_run.yml
-├── ansible.cfg
-├── group_vars
-│   ├── all
-│   ├── lbs
-│   └── webservers
-├── hosts
-├── lbs
-│   ├── handlers
-│   │   └── main.yml
-│   ├── tasks
-│   │   └── main.yml
-│   └── templates
-│       ├── keepalived_tmp.conf.j2
-│       ├── nginx.conf.j2
-│       └── proxy_osker.com.conf.j2
-├── main.yml
-├── nginx
-│   ├── handlers
-│   │   └── main.yml
-│   ├── tasks
-│   │   └── main.yml
-│   └── templates
-│       ├── nginx.conf.j2
-│       ├── osker.com.conf.j2
-│       ├── php.ini.j2
-│       └── php_www.conf.j2
-├── Process_env.yml
-├── README.md
-└── redis
-    ├── handlers
-    │   └── main.yml
-    ├── tasks
-    │   └── main.yml
-    └── templates
-        └── redis.conf.j2
-
-
-
-运行测试：
-1.先运行ansible-playbook 1st_run.yml 创建一个测试页面
-2.再运行ansible-playbook main.yml 
 ```
 
+
+
+## 3.运行测试
+
+1.先运行ansible-playbook 1st_run.yml 创建一个测试页面
+2.再运行ansible-playbook main.yml 
